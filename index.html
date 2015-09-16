@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.css">
+        <style>
+            @font-face {
+                font-family: "alarm-clock";
+                src: url(alarm-clock.ttf) format("truetype");
+            }
+            body {
+                background-color: white;
+            }
+
+            div.clock-module {
+                color: black;
+                font-family: "alarm-clock", sans-serif;
+                font-size: 500%;
+            }
+
+            div.weather-module, div.url-tests {
+                color: black;
+                font-size: 200%;
+            }
+
+            span.seconds {
+                -webkit-transition: all 1s ease-in-out;
+                -moz-transition: all 1s ease-in-out;
+                -o-transition: all 1s ease-in-out;
+                transition: all 1s ease-in-out;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="col-md-12 row" style="padding-top: 300px;">
+            <div class="clock-module col-md-offset-4 col-md-4" style="text-align: center;">
+                <span class="hours"></span>:<span class="minutes"></span>:<span class="seconds"></span><span class="ampm"></span>
+            </div>
+        </div>
+        <div class="col-md-12 row">
+            <div class="weather-module" style="text-align: center;">
+                <h3>Current Weather:</h3>
+                <div class="temperature">
+                    <span class="temp"></span>
+                </div>
+                <h3>Forecast:</h3>
+                <div class="weather">
+                    <span class="forecast"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- <div class="url-tests">
+
+            <div class="facebook">
+                Facebook:
+                <span class="facebook-url"></span>
+            </div>
+
+            <div class="FailingTest">
+                This test should fail:
+                <span class="dead-url"></span>
+            </div>
+
+            <div class="Bridge">
+                CRM-Bridge:
+                <span class="crmBridge"></span>
+            </div>
+        </div> -->
+
+        <script src="jquery.min.js"></script>
+        <script>
+
+            var success = "<span class='glyphicon glyphicon-ok'></span>";
+            var failure = "<span class='glyphicon glyphicon-remove'></span>";
+
+            function kelvinToFahrenheit(kelvin) {
+                return Math.round(kelvin*9/5 - 459.67);
+            }
+
+            function updateClock() {
+                var time = new Date();
+                var minutes = time.getMinutes();
+                var hours = time.getHours();
+                var seconds = time.getSeconds();
+                var ampm = "AM";
+                if(hours > 12) {
+                    hours = hours - 12;
+                    ampm = "PM";
+                }
+                if(minutes < 10) {
+                    minutes = "0" + minutes;
+                }
+                if(seconds < 10) {
+                    seconds = "0" + seconds;
+                }
+                $("div.clock-module span.hours").text(hours);
+                $("div.clock-module span.minutes").text(minutes);
+                $("div.clock-module span.seconds").text(seconds);
+                $("div.clock-module span.ampm").text(ampm);
+            }
+
+            function updateWeather() {
+                $.get("http://api.openweathermap.org/data/2.5/weather?zip=65201,us", {}, function(data) {
+                    //console.log(data);
+                    $("div.temperature span.temp").text(kelvinToFahrenheit(data.main.temp) + " " + String.fromCharCode(parseInt("00B0", 16)) + "F");
+                    $("div.temperature span.temp").append("<img src='http://openweathermap.org/img/w/" + data.weather[0].icon + ".png'>");
+                }, "json");
+
+                $.get("http://api.openweathermap.org/data/2.5/forecast/daily?zip=65201&cnt=4,us", {}, function(data) {
+                    console.log(data);
+                }, "json");
+            }
+
+            //Ajax
+            $(document).ready(function() {
+                updateClock();
+                updateWeather();
+
+                setInterval(function() {
+                    updateClock();
+                }, 1000);
+
+                setInterval(function() {
+                    updateWeather();
+                }, 60000);
+            });
+
+        </script>
+        <script src="js/bootstrap.min.js"></script>
+    </body>
+
+</html>
